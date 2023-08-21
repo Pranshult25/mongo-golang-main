@@ -15,7 +15,7 @@ function App(){
 
   useEffect(() => {
 
-    axios.get('http://localhost:3200/user', {withCredentials:true})
+    axios.get('http://localhost:4000/user', {withCredentials:true})
       .then(response => setUser(response.data));
 
   }, []);

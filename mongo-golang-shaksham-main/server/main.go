@@ -61,7 +61,7 @@ func run() error {
 		AllowCredentials: true,
 		MaxAge: 389312748127,
 	}))
-
+	fmt.Println("hello3")
 	// app.Use(c.Handler()))
 
 	
@@ -77,6 +77,7 @@ func run() error {
 	if port = os.Getenv("PORT"); port == "" {
 		port = "4000"
 	}
+	fmt.Println("hello4")
 	app.Listen(":" + port)
 
 

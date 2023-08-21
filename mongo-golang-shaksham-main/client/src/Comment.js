@@ -20,7 +20,13 @@ function Comment(props) {
   }
 
   function refreshVotes() {
-    const commentsIds = [comment._id, ...comments.map(c => c._id) ];
+    // if (comments)
+    // console.log(comments,'24'
+    const commentsIds=[]
+    if (comments.length>0){
+      commentsIds = [comment._id, ...comments.map(c => c._id) ];
+    }
+    
     axios.post('http://localhost:4000/votes', {commentsIds}, {withCredentials:true})
       .then(response => {
         setCommentsTotals(response.data.commentsTotals);
@@ -49,7 +55,7 @@ function Comment(props) {
       {comment && (
         <Post {...comment} open={true} />
       )}
-      {!!comment && !!comment._id && (
+      {!!comment && !!comment._id && comments.length>0 && (
         <>
           <hr className="border-reddit_border my-4"/>
           <CommentForm onSubmit={() => refreshComments()}

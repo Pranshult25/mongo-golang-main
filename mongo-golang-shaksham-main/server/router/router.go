@@ -117,7 +117,7 @@ func checkEmail(email string) bool{
 
 //ok
 func getUserFromToken(tokenString string) (models.User, error){
-    coll := common.GetDBCollection("Users")
+    coll := common.GetDBCollection("users")
 	// claims := jwt.MapClaims{}
     // claims.VerifyExpiresAt(time.Now().Add(time.Hour*24).Unix(), true)
 	// _, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -200,7 +200,7 @@ func insertOneUser(c *fiber.Ctx) error{
     }
 
 	// create the book
-	coll := common.GetDBCollection("Users")
+	coll := common.GetDBCollection("users")
 	result, err := coll.InsertOne(c.Context(), user)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -228,7 +228,7 @@ func insertOneUser(c *fiber.Ctx) error{
 //Ok
 func findusers(c *fiber.Ctx) error{
     fmt.Println("findUsers")
-    coll := common.GetDBCollection("Users")
+    coll := common.GetDBCollection("users")
 
 	// find all books
 	users := make([]models.User, 0)
@@ -257,7 +257,7 @@ func findusers(c *fiber.Ctx) error{
 //OK
 func login(c *fiber.Ctx) error{
     fmt.Println("login")
-    coll := common.GetDBCollection("Users")
+    coll := common.GetDBCollection("users")
     
     user := new(models.User)
     if err := c.BodyParser(user); err != nil {
@@ -316,7 +316,7 @@ func logout(c *fiber.Ctx) error{
 
 func getComments(c *fiber.Ctx) error{
     fmt.Println("getcomments")
-    coll := common.GetDBCollection("Comments")
+    coll := common.GetDBCollection("comments")
 
 //     search := string(c.Request().URI().QueryString())
 //     var filters map[string]interface{}
@@ -401,7 +401,7 @@ func postComments(c *fiber.Ctx) error{
         })
     }
     // fmt.Println("ok2")
-    coll := common.GetDBCollection("Comments")
+    coll := common.GetDBCollection("comments")
     // fmt.Println("ok2")
     var comment models.Comment
     if err := c.BodyParser(&comment); err != nil {
@@ -432,7 +432,7 @@ func postComments(c *fiber.Ctx) error{
 
 func getCommentByRootId(c *fiber.Ctx) error{
     // fmt.Println("getcommentbyrootid")
-    coll := common.GetDBCollection("Comments")
+    coll := common.GetDBCollection("comments")
 
     rootId := c.Params("rootId")
     if rootId == ""{
@@ -469,7 +469,7 @@ func getCommentByRootId(c *fiber.Ctx) error{
 
 func getCommentsById(c *fiber.Ctx) error{
     // fmt.Println("getcommentbyid")
-    coll := common.GetDBCollection("Comments")
+    coll := common.GetDBCollection("comments")
 
     Id := c.Params("id")
 
@@ -500,7 +500,7 @@ type request struct {
 
 func postVotes(c *fiber.Ctx) error{
     // fmt.Println("postVotes")
-    coll := common.GetDBCollection("Votes")
+    coll := common.GetDBCollection("votes")
     // req := c.Body()
     var req request
 
@@ -545,7 +545,7 @@ func postVotes(c *fiber.Ctx) error{
 }
 
 func getVotesFromDatabase(req []byte) ([]models.Vote, error){
-    coll := common.GetDBCollection("Votes")
+    coll := common.GetDBCollection("votes")
 
     filter := bson.M{"commentId": bson.M{"$in": req}}
 
@@ -573,7 +573,7 @@ func getVotesFromDatabase(req []byte) ([]models.Vote, error){
 }
 
 func voteCommentDirection(c *fiber.Ctx) error{
-    coll := common.GetDBCollection("Votes")
+    coll := common.GetDBCollection("votes")
     token := c.Cookies("token")
     userInfo, err := getUserFromToken(token)
     if err != nil {
