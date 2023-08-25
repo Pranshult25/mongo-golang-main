@@ -30,8 +30,8 @@ func Router(app *fiber.App){
     router.Get("/comments/root/:rootId", getCommentByRootId)
     router.Get("/comments/:id", getCommentsById)
     router.Post("/comments", postComments)
-    // router.Post("/votes", postVotes)
-    // router.Get("/vote/:commentId/:direction", voteCommentDirection)
+    router.Post("/votes", postVotes)
+    router.Get("/vote/:commentId/:direction", voteCommentDirection)
 }
 // type test_user struct {
 //     id int
@@ -428,55 +428,51 @@ func getCommentsById(c *fiber.Ctx) error{
     return c.Status(200).JSON(comments)
 }
 
-// type request struct {
-//     CommentsIds []string `json:"commentsIds"`
-// }
+type request struct {
+    CommentsIds []string `json:"commentsIds"`
+}
 
-// func postVotes(c *fiber.Ctx) error{
-//     // fmt.Println("postVotes")
-//     coll := common.GetDBCollection("votes")
-//     // req := c.Body()
-//     var req request
+func postVotes(c *fiber.Ctx) error{
+    // fmt.Println("postVotes")
+    coll := common.GetDBCollection("votes")
+    // req := c.Body()
+    var req request
 
-//     if err := c.BodyParser(&req); err != nil {
-//         fmt.Println("Error parsing request body:", err)
-//         return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
-//     }  
+    if err := c.BodyParser(&req); err != nil {
+        fmt.Println("Error parsing request body:", err)
+        return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
+    }  
     
-//     fmt.Println(req.CommentsIds)
+    fmt.Println(req.CommentsIds)
 
-//     token := c.Cookies("token")
-//     userInfo, err := getUserFromToken(token)
-//     if err != nil {
-//         return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
-//     }
+    username := c.Cookies("token")
     
-// 	voteFilter := bson.M{"commentId": bson.M{"$in": req.CommentsIds}}
-// 	cursor, err := coll.Find(c.Context(), voteFilter)
-// 		if err != nil {
-// 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-// 		}
-// 		defer cursor.Close(c.Context())
+	voteFilter := bson.M{"commentId": bson.M{"$in": req.CommentsIds}}
+	cursor, err := coll.Find(c.Context(), voteFilter)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+		defer cursor.Close(c.Context())
 
-// 		votes := []models.Vote{}
-// 		if err := cursor.All(c.Context(), &votes); err != nil {
-// 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-// 		}
+		votes := []models.Vote{}
+		if err := cursor.All(c.Context(), &votes); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
 
-//     commentsTotals := make(map[string]int)
-// 	userVotes := make(map[string]int)
-// 	for _, vote := range votes {
-// 		if _, ok := commentsTotals[vote.CommentId.Hex()]; !ok {
-// 			commentsTotals[vote.CommentId.Hex()] = 0
-// 		}
-// 		commentsTotals[vote.CommentId.Hex()] += vote.Direction
+    commentsTotals := make(map[string]int)
+	userVotes := make(map[string]int)
+	for _, vote := range votes {
+		if _, ok := commentsTotals[vote.CommentId.Hex()]; !ok {
+			commentsTotals[vote.CommentId.Hex()] = 0
+		}
+		commentsTotals[vote.CommentId.Hex()] += vote.Direction
 
-// 		if vote.Author == userInfo.Username {
-// 			userVotes[vote.CommentId.Hex()] = vote.Direction
-// 		}
-// 	}
-//     return c.JSON(fiber.Map{"commentsTotals": commentsTotals, "userVotes": userVotes})
-// }
+		if vote.Author == username {
+			userVotes[vote.CommentId.Hex()] = vote.Direction
+		}
+	}
+    return c.JSON(fiber.Map{"commentsTotals": commentsTotals, "userVotes": userVotes})
+}
 
 // func getVotesFromDatabase(req []byte) ([]models.Vote, error){
 //     coll := common.GetDBCollection("votes")
@@ -506,48 +502,48 @@ func getCommentsById(c *fiber.Ctx) error{
 //     return votes, nil
 // }
 
-// func voteCommentDirection(c *fiber.Ctx) error{
-//     coll := common.GetDBCollection("votes")
-//     token := c.Cookies("token")
-//     userInfo, err := getUserFromToken(token)
-//     if err != nil {
-//         return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
-//     }
+func voteCommentDirection(c *fiber.Ctx) error{
+    coll := common.GetDBCollection("votes")
+    username := c.Cookies("token")
+    // userInfo, err := getUserFromToken(token)
+    // if err != nil {
+    //     return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
+    // }
 
-//     commentID := c.Params("commentId")
-//     direction := c.Params("direction")
+    commentID := c.Params("commentId")
+    direction := c.Params("direction")
 
-//     // Remove existing votes by the user for the given comment
-//     _, err = coll.DeleteMany(context.Background(), bson.M{"commentId": commentID, "author": userInfo.Username})
-//     if err != nil {
-//         fmt.Println("Error deleting votes:", err)
-//         return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-//     }
+    // Remove existing votes by the user for the given comment
+    _, err := coll.DeleteMany(context.Background(), bson.M{"commentId": commentID, "author": username})
+    if err != nil {
+        fmt.Println("Error deleting votes:", err)
+        return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+    }
 
-//     if direction != "up" && direction != "down" {
-//         return c.JSON(true)
-//     }
+    if direction != "up" && direction != "down" {
+        return c.JSON(true)
+    }
 
-//     NewCommentId, _ := primitive.ObjectIDFromHex(commentID)
+    NewCommentId, _ := primitive.ObjectIDFromHex(commentID)
 
 
-//     // Create a new vote for the user
-//     newVote := models.Vote{
-//         Author:    userInfo.Username,
-//         Direction: 1, // Default to upvote, you can change it to -1 for downvote
-//         CommentId: NewCommentId,
-//     }
+    // Create a new vote for the user
+    newVote := models.Vote{
+        Author:    username,
+        Direction: 1, // Default to upvote, you can change it to -1 for downvote
+        CommentId: NewCommentId,
+    }
 
-//     // Save the vote to the database
-//     _, err = coll.InsertOne(context.Background(), newVote)
-//     if err != nil {
-//         fmt.Println("Error inserting vote:", err)
-//         return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
-//     }
+    // Save the vote to the database
+    _, err = coll.InsertOne(context.Background(), newVote)
+    if err != nil {
+        fmt.Println("Error inserting vote:", err)
+        return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+    }
 
-//     return c.JSON(true)
+    return c.JSON(true)
 
-// }
+}
 
 
 
