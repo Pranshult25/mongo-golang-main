@@ -6,9 +6,6 @@ import AuthModal from "./AuthModal";
 import { useContext, useEffect , useState } from "react";
 import RedirectContext from "./RedirectContext";
 import UserContext from "./UserContext"; // Import the UserContext
-
-// Import the ProfileModal component
-// Correct import
 import ProfileModal from "./ProfileModal";
 
 
