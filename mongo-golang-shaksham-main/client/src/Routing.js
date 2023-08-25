@@ -1,30 +1,47 @@
 import Header from "./Header";
-import {BrowserRouter as Router, Redirect} from "react-router-dom";
+import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
 import RoutingSwitch from "./RoutingSwitch";
 import PostFormModal from "./PostFormModal";
 import AuthModal from "./AuthModal";
-import {useContext, useEffect} from "react";
+import { useContext, useEffect , useState } from "react";
 import RedirectContext from "./RedirectContext";
+import UserContext from "./UserContext"; // Import the UserContext
+
+// Import the ProfileModal component
+// Correct import
+import ProfileModal from "./ProfileModal";
 
 
 function Routing() {
-  const {redirect,setRedirect} = useContext(RedirectContext);
+  const { redirect, setRedirect } = useContext(RedirectContext);
+  const user = useContext(UserContext); // Get user context
+  const [showProfileModal, setShowProfileModal] = useState(false); // State to control profile modal
+
   useEffect(() => {
     if (redirect) {
       setRedirect(false);
     }
   }, [redirect]);
+
   return (
     <Router>
-      {redirect && (
-        <Redirect to={redirect} />
-      )}
+      {redirect && <Redirect to={redirect} />}
       {!redirect && (
         <>
-          <Header />
+          <Header setShowProfileModal={setShowProfileModal} /> {/* Pass setShowProfileModal to Header */}
           <RoutingSwitch />
           <PostFormModal />
           <AuthModal />
+          
+          {/* Show profile modal if user is logged in */}
+          {user.username && (
+            <Route
+              path="/profile"
+              render={() => (
+                <ProfileModal onClose={() => setShowProfileModal(false)} />
+              )}
+            />
+          )}
         </>
       )}
     </Router>
