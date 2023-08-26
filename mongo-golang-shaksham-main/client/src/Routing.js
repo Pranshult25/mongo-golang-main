@@ -31,7 +31,7 @@ return (
         <PostFormModal />
         <AuthModal />
         
-        {/* Show profile page if user is logged in */}
+       
         {user.username && (
           <Route path="/profile">
             <ProfilePage />
