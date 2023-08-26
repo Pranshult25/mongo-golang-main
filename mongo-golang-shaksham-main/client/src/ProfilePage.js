@@ -39,8 +39,8 @@ function ProfilePage() {
         {user.username ? (
           <div>
             <div className="flex items-center mb-5">
-              {/* <img src={user.avatar} alt="Profile Avatar" className="w-12 h-12 rounded-full mr-3" /> */}
-              <h1 className="text-2xl font-semibold">Profile: {user.username}</h1>
+               <img src={user.avatar} alt="Profile Avatar" className="w-12 h-12 rounded-full mr-3" />
+              <h1 className="text-2xl font-semibold">Name: {user.username}</h1>
             </div>
             
             <div className="flex-grow mb-8 overflow-y-auto scrollbar-thin scrollbar-thumb-reddit_dark-lighter scrollbar-track-reddit_dark">
