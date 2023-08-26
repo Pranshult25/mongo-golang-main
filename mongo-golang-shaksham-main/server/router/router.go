@@ -554,23 +554,19 @@ func voteCommentDirection(c *fiber.Ctx) error {
 }
 
 func getUserComments(c *fiber.Ctx) error {
-	// Retrieve the username from the token stored in cookies
 	username := c.Cookies("token")
 	if username == "" {
 		return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized")
 	}
 
-	// Get a reference to the "comments" collection
 	coll := common.GetDBCollection("comments")
 
-	// Query the comments/posts made by the user
 	cur, err := coll.Find(c.Context(), bson.M{"author": username})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 	}
 	defer cur.Close(c.Context())
 
-	// Slice to store the user's comments
 	var userComments []models.Comment
 
 	// Iterate through the query results and decode into Comment objects
@@ -581,7 +577,5 @@ func getUserComments(c *fiber.Ctx) error {
 		}
 		userComments = append(userComments, comment)
 	}
-
-	// Return the user's comments in JSON format
 	return c.Status(fiber.StatusOK).JSON(userComments)
 }

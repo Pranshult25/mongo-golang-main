@@ -17,7 +17,6 @@ import AuthModalContext from "./AuthModalContext";
 import UserContext from "./UserContext";
 import { Link } from "react-router-dom";
 import RedirectContext from "./RedirectContext";
-import ProfileModal from "./ProfileModal"; // Import the ProfileModal component
 
 function Header() {
   const [userDropdownVisibilityClass, setUserDropdownVisibilityClass] = useState('hidden');
@@ -111,22 +110,20 @@ function Header() {
             {user.username && (
               <button
                 onClick={() => user.logout()}
-                className="block flex w-50 py-2 px-3 hover:bg-gray-300 hover:text-black text-sm">
+                className="block flex w-70 py-2 px-3 hover:bg-gray-300 hover:text-black text-sm">
                 <LogoutIcon className="w-5 h-5 mr-2" />
                 Logout
               </button>
             )}
-            <button
-            onClick={openProfileModal}
-            className="block w-50 py-2 px-3 text-sm hover:bg-gray-300 hover:text-black">
-            View Profile
-          </button>
+            <Link to="/profile"> {/* Link to the profile page */}
+              <button
+                className="block w-70 py-2 px-3 text-sm hover:bg-gray-300 hover:text-black">
+                View Profile
+              </button>
+            </Link>
           </div>
         </ClickOutHandler>
       </div>
-      {profileModalOpen && (
-        <ProfileModal onClose={closeProfileModal} />
-      )}
 
     </header>
   );

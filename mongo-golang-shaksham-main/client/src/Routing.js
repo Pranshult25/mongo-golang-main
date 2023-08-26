@@ -6,7 +6,8 @@ import AuthModal from "./AuthModal";
 import { useContext, useEffect , useState } from "react";
 import RedirectContext from "./RedirectContext";
 import UserContext from "./UserContext"; // Import the UserContext
-import ProfileModal from "./ProfileModal";
+import ProfilePage from "./ProfilePage";
+
 
 
 function Routing() {
@@ -20,29 +21,26 @@ function Routing() {
     }
   }, [redirect]);
 
-  return (
-    <Router>
-      {redirect && <Redirect to={redirect} />}
-      {!redirect && (
-        <>
-          <Header setShowProfileModal={setShowProfileModal} /> {/* Pass setShowProfileModal to Header */}
-          <RoutingSwitch />
-          <PostFormModal />
-          <AuthModal />
-          
-          {/* Show profile modal if user is logged in */}
-          {user.username && (
-            <Route
-              path="/profile"
-              render={() => (
-                <ProfileModal onClose={() => setShowProfileModal(false)} />
-              )}
-            />
-          )}
-        </>
-      )}
-    </Router>
-  );
+return (
+  <Router>
+    {redirect && <Redirect to={redirect} />}
+    {!redirect && (
+      <>
+        <Header setShowProfileModal={setShowProfileModal} />
+        <RoutingSwitch />
+        <PostFormModal />
+        <AuthModal />
+        
+        {/* Show profile page if user is logged in */}
+        {user.username && (
+          <Route path="/profile">
+            <ProfilePage />
+          </Route>
+        )}
+      </>
+    )}
+  </Router>
+);
 }
 
 export default Routing;
