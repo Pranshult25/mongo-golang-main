@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	Id    primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	Email string             `json:"email" bson:"email"`
-    Username string          `json:"username" bson:"username"`
-	Password string        `json:"password" bson:"password"`
+	Id       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Email    string             `json:"email" bson:"email"`
+	Username string             `json:"username" bson:"username"`
+	Password string             `json:"password" bson:"password"`
 }
 
 type Credentials struct {

@@ -1,34 +1,46 @@
 import Header from "./Header";
-import {BrowserRouter as Router, Redirect} from "react-router-dom";
+import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
 import RoutingSwitch from "./RoutingSwitch";
 import PostFormModal from "./PostFormModal";
 import AuthModal from "./AuthModal";
-import {useContext, useEffect} from "react";
+import { useContext, useEffect , useState } from "react";
 import RedirectContext from "./RedirectContext";
+import UserContext from "./UserContext"; // Import the UserContext
+import ProfilePage from "./ProfilePage";
+
 
 
 function Routing() {
-  const {redirect,setRedirect} = useContext(RedirectContext);
+  const { redirect, setRedirect } = useContext(RedirectContext);
+  const user = useContext(UserContext); // Get user context
+  const [showProfileModal, setShowProfileModal] = useState(false); // State to control profile modal
+
   useEffect(() => {
     if (redirect) {
       setRedirect(false);
     }
   }, [redirect]);
-  return (
-    <Router>
-      {redirect && (
-        <Redirect to={redirect} />
-      )}
-      {!redirect && (
-        <>
-          <Header />
-          <RoutingSwitch />
-          <PostFormModal />
-          <AuthModal />
-        </>
-      )}
-    </Router>
-  );
+
+return (
+  <Router>
+    {redirect && <Redirect to={redirect} />}
+    {!redirect && (
+      <>
+        <Header setShowProfileModal={setShowProfileModal} />
+        <RoutingSwitch />
+        <PostFormModal />
+        <AuthModal />
+        
+       
+        {user.username && (
+          <Route path="/profile">
+            <ProfilePage />
+          </Route>
+        )}
+      </>
+    )}
+  </Router>
+);
 }
 
 export default Routing;

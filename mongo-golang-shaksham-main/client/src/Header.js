@@ -12,29 +12,37 @@ import {
 import Avatar from "./avatar.png";
 import ClickOutHandler from 'react-clickout-handler';
 import Button from "./Button";
-import {useState,useContext} from 'react';
+import { useState, useContext } from 'react';
 import AuthModalContext from "./AuthModalContext";
 import UserContext from "./UserContext";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import RedirectContext from "./RedirectContext";
 
 function Header() {
-  const [userDropdownVisibilityClass,setUserDropdownVisibilityClass] = useState('hidden');
-  const [searchText,setSearchText] = useState('');
-  const {setRedirect} = useContext(RedirectContext);
-  function toggleUserDropdown() {
-    if (userDropdownVisibilityClass === 'hidden') {
-      setUserDropdownVisibilityClass('block');
-    } else {
-      setUserDropdownVisibilityClass('hidden');
-    }
-  }
-  function doSearch(ev) {
+  const [userDropdownVisibilityClass, setUserDropdownVisibilityClass] = useState('hidden');
+  const [searchText, setSearchText] = useState('');
+  const { setRedirect } = useContext(RedirectContext);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const toggleUserDropdown = () => {
+    setUserDropdownVisibilityClass(prevVisibility => prevVisibility === 'hidden' ? 'block' : 'hidden');
+  };
+
+  const doSearch = (ev) => {
     ev.preventDefault();
-    setRedirect('/search/'+encodeURIComponent(searchText));
-  }
+    setRedirect('/search/' + encodeURIComponent(searchText));
+  };
+
   const authModal = useContext(AuthModalContext);
   const user = useContext(UserContext);
+
+  const openProfileModal = () => {
+    setProfileModalOpen(true);
+  };
+
+  const closeProfileModal = () => {
+    setProfileModalOpen(false);
+  };
   return (
     <header className="w-full bg-reddit_dark p-2">
       <div className="mx-4 flex relative">
@@ -64,10 +72,11 @@ function Header() {
           </>
         )}
 
-        {!user.username && (
+{!user.username && (
           <div className="mx-2 hidden sm:block">
             <Button outline={1} className="mr-1 h-8" onClick={() => authModal.setShow('login')}>Log In</Button>
             <Button className="h-8" onClick={() => authModal.setShow('register')}>Sign Up</Button>
+            
           </div>
         )}
 
@@ -99,16 +108,25 @@ function Header() {
               </button>
             )}
             {user.username && (
+               <Link to="/profile"> {/* Link to the profile page */}
+               <button
+                 className="block w-70 py-2 px-3 text-sm hover:bg-gray-300 hover:text-black">
+                 View Profile
+               </button>
+             </Link>)}
+            {user.username && (
               <button
                 onClick={() => user.logout()}
-                className="block flex w-50 py-2 px-3 hover:bg-gray-300 hover:text-black text-sm">
+                className="block flex w-70 py-2 px-3 hover:bg-gray-300 hover:text-black text-sm">
                 <LogoutIcon className="w-5 h-5 mr-2" />
                 Logout
               </button>
             )}
+            
           </div>
         </ClickOutHandler>
       </div>
+
     </header>
   );
 }
