@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,6 +28,7 @@ func Router(app *fiber.App) {
 	router.Post("/login", Login)
 	router.Post("/logout", logout)
 	router.Get("/comments", getComments)
+	router.Get("/comments/:category", getCommentsbyCategory)
 	router.Get("/comments/root/:rootId", getCommentByRootId)
 	router.Get("/comments/:id", getCommentsById)
 	router.Post("/comments", postComments)
@@ -36,103 +38,11 @@ func Router(app *fiber.App) {
 
 }
 
-// type test_user struct {
-//     id int
-//     username string
-//     role string
-// }
-// func makeToken() (string, error){
-//     // var user models.User
-
-//     // token := jwt.New(jwt.SigningMethodHS256)
-
-// 	// claims := token.Claims.(jwt.MapClaims)
-// 	// claims["sub"] = 1
-// 	// claims["name"] = "token"
-// 	// claims["admin"] = true
-// 	// claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-// 	// tokenString, err := token.SignedString([]byte(secret))
-//     // if err != nil{
-//     //     log.Fatal(err.Error())
-//     // }
-
-//     // fmt.Println(tokenString)
-//     // return tokenString
-
-//     // "email":      "test123@email.com",
-//     //     "exp":        time.Now().Add(time.Hour * 240).Unix(),
-//     //     //"exp":        time.Now().Add(-time.Hour * 8).Unix(),
-//     //     "role":       "testrole",
-//     //     "name":       "testname",
-//     //     "ip":         "8.8.8.8",
-//     //     "user_agent": "testagent",
-//     //     "id":         "120",
-
-//     token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.MapClaims{})
-
-//     // Sign and get the complete encoded token as a string
-//     tokenString, err := token.SignedString([]byte(secret))
-
-//     return tokenString, err
-// }
-
 func checkEmail(email string) bool {
 	Re := regexp.MustCompile(`[a-z0-9._%+\-]+@[a-z0-9._%+\-]+\.[a-z0-9._%+\-]`)
 	return Re.MatchString(email)
 }
 
-//ok
-// func getUserFromToken(tokenString string) (models.User, error){
-//     coll := common.GetDBCollection("users")
-// 	// claims := jwt.MapClaims{}
-//     // claims.VerifyExpiresAt(time.Now().Add(time.Hour*24).Unix(), true)
-// 	// _, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-// 	// 	return []byte(secret), nil
-// 	// })
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// var user models.User
-
-// 	// userID := claims["id"].(string)
-// 	// filter := bson.M{"_id": userID}
-
-//     // err = coll.FindOne(context.Background(), filter).Decode(user)
-
-// 	// if err != nil{
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// return &user, nil
-
-//     // fmt.Println("hello2")
-//     claims := jwt.MapClaims{}
-//     // fmt.Println("hello1")
-
-//     token, err := jwt.ParseWithClaims(tokenString, claims,func(token *jwt.Token) (interface{}, error) {
-//         return []byte(secret), nil
-//     })
-//         if err != nil{
-//             log.Fatal(err.Error())
-//         }
-//         // fmt.Println("hello2")
-
-//     if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid{
-//         userID := claims["id"].(string)
-//         var user models.User
-//         Id, _ := primitive.ObjectIDFromHex(userID)
-//         coll.FindOne(context.Background(), bson.M{"_id": Id}).Decode(&user)
-//         // fmt.Println("all sorted")
-//         return user, nil
-//     } else {
-//         return models.User{}, err
-//     }
-
-// }
-
-// Ok
 func home(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"status": "Connected",
@@ -282,8 +192,47 @@ func logout(c *fiber.Ctx) error {
 }
 
 func getComments(c *fiber.Ctx) error {
-	fmt.Println("getcomments")
 	coll := common.GetDBCollection("comments")
+
+	search := c.Query("search")
+	var filters bson.M
+
+	if search != "" {
+		filters = bson.M{
+			"body": bson.M{
+				"$regex": ".*" + strings.Title(search) + ".*",
+			},
+		}
+	} else {
+		filters = bson.M{"rootId": nil}
+	}
+
+	cur, err := coll.Find(context.Background(), filters)
+	if err != nil {
+		fmt.Println("error finding comments\n", err)
+		return c.Status(500).SendString(err.Error())
+	}
+	defer cur.Close(context.Background())
+
+	var comments []models.Comment
+	for cur.Next(context.Background()) {
+		var comment models.Comment
+		err := cur.Decode(&comment)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		comments = append(comments, comment)
+	}
+	if comments == nil {
+		return c.Status(500).JSON("Null")
+	} else {
+		return c.Status(200).JSON(comments)
+	}
+
+}
+func getCommentsbyCategory(c *fiber.Ctx) error {
+	category := c.Params("category")
+	coll := common.GetDBCollection(category)
 
 	search := c.Query("search")
 	var filters bson.M
@@ -314,12 +263,12 @@ func getComments(c *fiber.Ctx) error {
 		}
 		comments = append(comments, comment)
 	}
-
 	if comments == nil {
 		return c.Status(500).JSON("Null")
 	} else {
 		return c.Status(200).JSON(comments)
 	}
+
 }
 
 // func escapeRegExp(s string) string {
@@ -336,17 +285,7 @@ func postComments(c *fiber.Ctx) error {
 	if username == "" {
 		return c.Status(fiber.StatusUnauthorized).SendString("Unauthorised")
 	}
-	// fmt.Println("hello")
-	// userInfo := Login(c).ExistedUser
-	// fmt.Println("ok")
-	// if err != nil{
-	//     c.Status(500).JSON(fiber.Map{
-	//         "error": err.Error(),
-	//     })
-	// }
-	// fmt.Println("ok2")
-	coll := common.GetDBCollection("comments")
-	// fmt.Println("ok2")
+	
 	var comment models.Comment
 	if err := c.BodyParser(&comment); err != nil {
 		return c.Status(400).JSON(fiber.Map{
@@ -354,13 +293,20 @@ func postComments(c *fiber.Ctx) error {
 		})
 	}
 
-	// fmt.Println("ok3")
 	comment.PostedAt = time.Now()
-	// fmt.Println("lol")
 	comment.Author = username
-	// fmt.Println("ok4")
-	_, err := coll.InsertOne(c.Context(), &comment)
+	coll := common.GetDBCollection("comments")
+	category_coll := common.GetDBCollection(comment.Category)
 
+	_, err := category_coll.InsertOne(c.Context(), &comment)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error":   "Failed to create comment",
+			"message": err.Error(),
+		})
+	}
+
+	_, err = coll.InsertOne(c.Context(), &comment)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error":   "Failed to create comment",

@@ -7,6 +7,7 @@ import Button from "./Button";
 import PostFormModalContext from "./PostFormModalContext";
 import AuthModalContext from "./AuthModalContext";
 import axios from "axios";
+import Categories from './Categories';
 
 function PostFormModal () {
 
@@ -17,10 +18,11 @@ function PostFormModal () {
 
   const [title,setTitle] = useState('');
   const [body,setBody] = useState('');
+  const [category, setCategory] = useState('');
   const [newPostId, setNewPostId] = useState(null);
 
   function createPost() {
-    const data = {title,body};
+    const data = {title,body,category};
     axios.post('http://localhost:4000/comments', data, {withCredentials:true})
       .then(response => {
         setNewPostId(response.data._id);
@@ -31,11 +33,11 @@ function PostFormModal () {
           authModalContext.setShow('login');
         }
       });
+      if (newPostId) {
+        return (<Redirect to={'/comments/'+newPostId} />);
+      }
   }
 
-  if (newPostId) {
-    return (<Redirect to={'/comments/'+newPostId} />);
-  }
 
   return (
     <div
@@ -48,18 +50,23 @@ function PostFormModal () {
             placeholder={'Title'}
             onChange={e => setTitle(e.target.value)}
             value={title} />
+
+
           <Textarea
             className={'w-full mb-3'}
             placeholder={'Post text (you can use markdown)'}
             onChange={e => setBody(e.target.value)}
             value={body} />
+
+          <Categories setCategory={setCategory}/>
+
           <div className={'text-right'}>
             <Button onClick={() => modalContext.setShow(false)}
                     outline className={'px-4 py-2 mr-3'}>Cancel</Button>
             <Button onClick={() => createPost()} className={'px-4 py-2'}>POST</Button>
           </div>
         </div>
-      </ClickOutHandler>
+        </ClickOutHandler>
     </div>
   );
 }
