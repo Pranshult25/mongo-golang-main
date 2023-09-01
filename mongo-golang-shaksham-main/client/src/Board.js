@@ -1,5 +1,6 @@
 import BoardHeader from "./BoardHeader";
 import PostForm from "./PostForm";
+import PostsListingByCategory from "./PostListingByCategory";
 import PostsListing from "./PostsListing";
 
 function Board() {

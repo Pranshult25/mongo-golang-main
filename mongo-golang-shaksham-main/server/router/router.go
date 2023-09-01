@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
+	"unicode"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -28,7 +30,7 @@ func Router(app *fiber.App) {
 	router.Post("/login", Login)
 	router.Post("/logout", logout)
 	router.Get("/comments", getComments)
-	router.Get("/comments/:category", getCommentsbyCategory)
+	router.Get("commentsbycategory/:category", getCommentsbyCategory)
 	router.Get("/comments/root/:rootId", getCommentByRootId)
 	router.Get("/comments/:id", getCommentsById)
 	router.Post("/comments", postComments)
@@ -106,7 +108,7 @@ func findusers(c *fiber.Ctx) error {
 	fmt.Println("findUsers")
 	coll := common.GetDBCollection("users")
 
-	// find all books
+	// find all bookss
 	users := make([]models.User, 0)
 	cursor, err := coll.Find(c.Context(), bson.M{})
 	if err != nil {
@@ -198,9 +200,10 @@ func getComments(c *fiber.Ctx) error {
 	var filters bson.M
 
 	if search != "" {
+		caser := cases.Title(language.English)
 		filters = bson.M{
 			"body": bson.M{
-				"$regex": ".*" + strings.Title(search) + ".*",
+				"$regex": ".*" + caser.String(search) + ".*",
 			},
 		}
 	} else {
@@ -230,17 +233,40 @@ func getComments(c *fiber.Ctx) error {
 	}
 
 }
+
+func addSpaceBeforeCapital(s string) string {
+    if len(s) <= 1 {
+        return s
+    }
+
+    var result []rune
+    result = append(result, rune(s[0])) // Initialize the result with the first letter
+
+    for i := 1; i < len(s); i++ {
+        if unicode.IsUpper(rune(s[i])) {
+            result = append(result, ' ') // Add a space before the capital letter
+        }
+        result = append(result, rune(s[i])) // Add the current character
+    }
+    return string(result)
+}
+
+
+
 func getCommentsbyCategory(c *fiber.Ctx) error {
 	category := c.Params("category")
-	coll := common.GetDBCollection(category)
-
+    refinedCategory := addSpaceBeforeCapital(category)
+	fmt.Println(refinedCategory)
+	coll := common.GetDBCollection(refinedCategory)
+  
 	search := c.Query("search")
 	var filters bson.M
 
 	if search != "" {
+		caser := cases.Title(language.English)
 		filters = bson.M{
 			"body": bson.M{
-				"$regex": ".*" + search + ".*",
+				"$regex": ".*" + caser.String(search) + ".*",
 			},
 		}
 	} else {

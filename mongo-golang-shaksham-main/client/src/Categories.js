@@ -26,22 +26,22 @@ const Categories = (props) => {
                         <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Health</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Travel and Leisure</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Travel And Leisure</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Career and Employment</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Career And Employment</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Lifestyle and Relationships</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Lifestyle And Relationships</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Finance and Money</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Finance And Money</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Relationships and Social</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Relationships And Social</a>
                     </li>
                     <li>
-                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Hobbies and Interests</a>
+                        <a class="block px-4 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-white-600 dark:hover:text-black" onClick={changeName}>Hobbies And Interests</a>
                     </li>
                 </ul> 
             </div>

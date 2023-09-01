@@ -2,6 +2,7 @@ import {Route, Switch, useLocation} from "react-router-dom";
 import {useState, useEffect} from "react";
 import Board from "./Board";
 import CommentPage from "./CommentPage";
+import BoardCategory  from "./BoardCategory";
 import CommentModal from "./CommentModal";
 import SearchResultsPage from "./SearchResultsPage";
 
@@ -12,11 +13,13 @@ function RoutingSwitch() {
 
   let location = useLocation();
   let commentId = null;
+  let category = null
 
   if (location.state && location.state.commentId) {
     location.pathname = '/';
     if (postOpen) {
       commentId = location.state.commentId;
+      category = location.state.category
     } else {
       location.state.commentId = null;
     }
@@ -44,6 +47,7 @@ function RoutingSwitch() {
       <Switch location={location}>
         <Route exact path="/" component={Board} />
         <Route exact path="/comments/:id" component={CommentPage} />
+        <Route exact path="/commentsbycategory/:category" component={BoardCategory} />
         <Route exact path="/search/:text" component={SearchResultsPage} />
       </Switch>
     </div>

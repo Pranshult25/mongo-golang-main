@@ -17,6 +17,7 @@ import AuthModalContext from "./AuthModalContext";
 import UserContext from "./UserContext";
 import { Link } from "react-router-dom";
 import RedirectContext from "./RedirectContext";
+import Home from "./Home";
 
 function Header() {
   const [userDropdownVisibilityClass, setUserDropdownVisibilityClass] = useState('hidden');
@@ -51,6 +52,7 @@ function Header() {
           <img src={Logo} alt="" className="w-8 h-8 mr-4" />
         </Link>
         
+        <Home/>
 
         <form onSubmit={doSearch} className="bg-reddit_dark-brighter pl-3 flex rounded-md border border-reddit_border mx-4 flex-grow">
           <SearchIcon className="text-gray-300 h-6 w-6 mt-1" />
@@ -61,7 +63,7 @@ function Header() {
             style={{border: "none"}}
           />
         </form>
-
+    
         {user.username && (
           <>
             <button className="px-2 py-1">
