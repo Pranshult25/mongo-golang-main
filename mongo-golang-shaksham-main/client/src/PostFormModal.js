@@ -19,13 +19,17 @@ function PostFormModal () {
   const [title,setTitle] = useState('');
   const [body,setBody] = useState('');
   const [category, setCategory] = useState('');
-  const [newPostId, setNewPostId] = useState(null);
+  const [newPostId, setNewPostId] = useState(false);
 
   function createPost() {
     const data = {title,body,category};
+    let redirectvar=false;
     axios.post('http://localhost:4000/comments', data, {withCredentials:true})
       .then(response => {
-        setNewPostId(response.data._id);
+        setNewPostId(true);
+        redirectvar=true;
+        console.log(newPostId,"changed 29");
+        // return (<Redirect to={'/'} />);
       })
       .catch(error => {
         console.log(error);
@@ -33,11 +37,14 @@ function PostFormModal () {
           authModalContext.setShow('login');
         }
       });
-      if (newPostId) {
-        return (<Redirect to={'/comments/'+newPostId} />);
-      }
+      console.log(redirectvar,"40")
+      
   }
-
+  // console.log(newPostId,"43")
+  if (newPostId) {
+    console.log("inititate 39")
+    return (<Redirect to='/' />);
+  }
 
   return (
     <div

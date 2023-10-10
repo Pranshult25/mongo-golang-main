@@ -12,10 +12,13 @@ function PostsListing() {
 
   }, []);
 
+  const reversedComments = [...comments].reverse();
 
+  // console.log(reversedComments, "reversed post data");
+  
   return (
     <div className="bg-reddit_dark">
-      {comments.map(comment => (
+      {reversedComments.map(comment => (
         <Post {...comment} isListing={true} />
       ))}
     </div>
